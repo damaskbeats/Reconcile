@@ -125,7 +125,7 @@ export default function App() {
           
           <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-20">
             <div className="mb-8">
-              <img src="/logo.png" alt="Reconcile Group logo" className="h-28 w-28 rounded-full object-cover ring-1 ring-white/20 shadow-2xl" />
+              <img src="/logo.png" alt="Reconcile Group logo" className="h-28 w-28 rounded-2xl object-cover ring-1 ring-white/20 shadow-2xl" />
             </div>
             
             <div className="mb-6 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.25em]">
@@ -140,7 +140,7 @@ export default function App() {
               <span className="text-[#e64a3a]">Security &amp;<br />Technical<br />Services</span>
             </h1>
 
-            <p className="mt-8 max-w-xl text-base leading-relaxed text-[#c3ce3b] opacity-90 font-normal">
+            <p className="mt-8 max-w-xl text-base leading-relaxed text-[#d9e0e5] font-normal">
               Reconcile Group is a South African black-owned company providing integrated security, mining support, engineering support, and infrastructure services to mining, industrial, construction, and public sectors. Combines trained personnel with thermal drone surveillance, AI-enabled CCTV, biometric access control, and real-time monitoring.
             </p>
 
@@ -151,10 +151,16 @@ export default function App() {
           </div>
         </section>
 
-        <section id="about" className="bg-[#f2eee6] px-5 py-24 text-[#0a1929] md:py-32">
-          <div className="mx-auto max-w-7xl">
+        <section id="about" className="relative overflow-hidden bg-[#f2eee6] px-5 py-24 text-[#0a1929] md:py-32">
+          {/* ANPR Camera Background Image Layer */}
+          <div 
+            className="absolute right-0 top-1/2 z-0 h-[80%] w-full max-w-xl -translate-y-1/2 bg-contain bg-right bg-no-repeat opacity-20 mix-blend-multiply pointer-events-none md:opacity-35"
+            style={{ backgroundImage: 'url(/anpr.jpg)' }}
+          />
+
+          <div className="relative z-10 mx-auto max-w-7xl">
             <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">The operating brief</p>
-            <h2 className="max-w-3xl text-4xl font-bold uppercase leading-[.95] md:text-6xl">One partner. The full value chain.</h2>
+            <h2 className="max-w-3xl text-4xl font-bold uppercase leading-[.95] md:text-6xl">Company<br /><span className="text-[#d04a43]">About</span></h2>
             <p className="mt-8 max-w-2xl text-xl leading-relaxed md:text-2xl">
               Reconcile Group is a South African black-owned company providing integrated security, mining support, engineering support, and infrastructure services to mining, industrial, construction, and public sectors.
             </p>
