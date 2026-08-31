@@ -44,7 +44,7 @@ function HeroVideo() {
     const activeVideo = active === 'a' ? videoARef.current : videoBRef.current;
     const inactiveVideo = active === 'a' ? videoBRef.current : videoARef.current;
     if (!activeVideo || hasError) return;
-    if (isVisible) void activeVideo.play().catch(() => setHasError(true));
+    if (isVisible) void activeVideo.play().catch(() => {});
     else activeVideo.pause();
     inactiveVideo?.pause();
   }, [active, isVisible, hasError]);
@@ -55,7 +55,7 @@ function HeroVideo() {
     const nextRef = next === 'a' ? videoARef.current : videoBRef.current;
     if (nextRef) {
       nextRef.currentTime = 0;
-      if (isVisible) void nextRef.play().catch(() => setHasError(true));
+      if (isVisible) void nextRef.play().catch(() => {});
     }
   };
 
