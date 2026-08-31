@@ -98,7 +98,7 @@ export default function App() {
       <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-[#0a1929]/90 backdrop-blur-md">
         <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-5">
           <a href="#top" onClick={closeMenu} className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-[#a01c1c] font-bold text-lg">R</div>
+            <img src="/logo.png" alt="Reconcile Group logo" className="h-11 w-11 rounded-full object-cover ring-1 ring-[#fff7e8]/30" />
             <span className="hidden text-[11px] font-semibold uppercase leading-tight tracking-[.12em] sm:block">Reconcile<br /><span className="text-[#cf443e]">Group</span></span>
           </a>
           <nav className={`${menuOpen ? 'absolute left-0 right-0 top-[76px] flex flex-col gap-6 border-b border-white/10 bg-[#0a1929] p-6' : 'hidden'} md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0`}>
@@ -123,14 +123,16 @@ export default function App() {
           <HeroVideo />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#0a1929_0%,rgba(10,25,41,.92)_40%,rgba(10,25,41,.35)_100%)]" />
           <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 pt-24">
-            <div className="mono-font mb-8 flex items-center gap-3 text-xs uppercase tracking-[.24em] text-[#d04a43]">
-              <span className="h-2 w-2 rounded-full bg-[#d04a43]" /> South Africa · Field-ready since 2020
+            <img src="/logo.png" alt="Reconcile Group logo" className="mb-7 h-16 w-16 rounded-full object-cover ring-1 ring-[#fff7e8]/30 md:h-20 md:w-20" />
+            <div className="mb-7 flex items-center gap-3">
+              <span className="h-2 w-2 rounded-full bg-[#d04a43] shadow-[0_0_0_5px_rgba(208,74,67,.16)]" />
+              <span className="text-xs font-bold uppercase tracking-[.24em] text-[#e7b85e]">South Africa / On the ground</span>
             </div>
-            <h1 className="max-w-4xl text-[3.5rem] font-bold uppercase leading-[.9] tracking-tight sm:text-[5.5rem] lg:text-[7rem]">
-              Built for<br /><span className="text-[#d04a43]">the shift.</span>
+            <h1 className="max-w-5xl text-[clamp(3rem,7vw,7.2rem)] font-semibold leading-[.88] tracking-[-.03em]">
+              Mining Support,<br /><span className="text-[#d04a43]">Security &amp; Technical Services</span>
             </h1>
-            <p className="mt-8 max-w-xl text-base leading-relaxed text-[#bdcad4] md:text-lg">
-              Mining support, security and technical services for the places where the work cannot stop.
+            <p className="mt-8 max-w-2xl text-base leading-7 text-[#d9e0e5] md:text-lg">
+              Reconcile Group is a South African black-owned company providing integrated security, mining support, engineering support, and infrastructure services to mining, industrial, construction, and public sectors. Combines trained personnel with thermal drone surveillance, AI-enabled CCTV, biometric access control, and real-time monitoring.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <a href="#contact" className="inline-flex items-center gap-3 bg-[#a01c1c] px-6 py-4 font-semibold uppercase tracking-[.08em] hover:-translate-y-1 transition-transform">Get a quote <ArrowDownRight size={18} /></a>
@@ -275,12 +277,21 @@ export default function App() {
       </main>
 
       <footer className="border-t border-white/10 bg-[#081521] px-5 py-10">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 text-xs uppercase tracking-[.12em] text-[#728493] md:flex-row md:items-center">
-          <span>© {year} Reconcile Security Services (Pty) Ltd</span>
-          <span>Reg: 2020/724821/07 · Tax: 9620013194</span>
-          <span>Northam, Limpopo · South Africa</span>
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Reconcile Group logo" className="h-12 w-12 rounded-sm object-cover" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.15em] text-[#fff7e8]">Reconcile Group</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[.12em] text-[#d04a43]">Mining Support, Security &amp; Technical Services</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 text-xs uppercase tracking-[.12em] text-[#728493] md:items-end">
+            <span>© {year} Reconcile Security Services (Pty) Ltd</span>
+            <span>Reg: 2020/724821/07 · Tax: 9620013194</span>
+            <span>Northam, Limpopo · South Africa</span>
+          </div>
         </div>
       </footer>
     </div>
-  
+  );
 }
