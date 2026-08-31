@@ -60,13 +60,13 @@ function HeroVideo() {
   };
 
   if (hasError) {
-    return <div ref={wrapperRef} className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/videos/poster-dock-a.jpg)' }} />;
+    return <div ref={wrapperRef} className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/poster-dock-a.jpg)' }} />;
   }
 
   return (
     <div ref={wrapperRef} className="absolute inset-0" aria-hidden="true">
-      <video ref={videoARef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300" style={{ opacity: active === 'a' ? 1 : 0 }} src="/videos/hero-drone-dock-a.mp4" poster="/videos/poster-dock-a.jpg" autoPlay muted playsInline preload="auto" onEnded={() => handleEnded('a')} onError={() => setHasError(true)} />
-      <video ref={videoBRef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300" style={{ opacity: active === 'b' ? 1 : 0 }} src="/videos/hero-drone-dock-b.mp4" poster="/videos/poster-dock-b.jpg" muted playsInline preload="auto" onEnded={() => handleEnded('b')} onError={() => setHasError(true)} />
+      <video ref={videoARef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300" style={{ opacity: active === 'a' ? 1 : 0 }} src="/hero-drone-dock-a.mp4" poster="/poster-dock-a.jpg" autoPlay muted playsInline preload="auto" onEnded={() => handleEnded('a')} onError={() => setHasError(true)} />
+      <video ref={videoBRef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-300" style={{ opacity: active === 'b' ? 1 : 0 }} src="/hero-drone-dock-b.mp4" poster="/poster-dock-b.jpg" muted playsInline preload="auto" onEnded={() => handleEnded('b')} onError={() => setHasError(true)} />
     </div>
   );
 }
