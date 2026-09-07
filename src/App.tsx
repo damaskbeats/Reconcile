@@ -33,6 +33,48 @@ const regionDetails: Record<string, { base: string; focus: string }> = {
 const regions = Object.keys(regionDetails);
 const industries = ['Mining', 'Industrial', 'Construction', 'Energy', 'Agriculture', 'Oil & Gas', 'Commercial', 'Government'];
 
+// WhatsApp brand mark (lucide-react has no official WhatsApp icon, so it's inlined as SVG)
+function WhatsAppIcon({ size = 28 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path d="M16.004 3C9.377 3 4 8.373 4 15c0 2.34.65 4.53 1.777 6.4L4 29l7.79-1.744A11.93 11.93 0 0 0 16.004 27C22.63 27 28 21.627 28 15S22.63 3 16.004 3Zm0 21.818c-1.93 0-3.79-.52-5.41-1.5l-.388-.23-4.62 1.035 1.006-4.5-.253-.402A9.77 9.77 0 0 1 5.19 15c0-5.966 4.85-10.818 10.814-10.818S26.818 9.034 26.818 15 21.968 24.818 16.004 24.818Zm5.94-8.18c-.325-.163-1.92-.947-2.218-1.056-.297-.108-.514-.163-.73.163-.217.325-.838 1.056-1.028 1.273-.19.217-.38.244-.705.082-.325-.163-1.373-.506-2.615-1.612-.966-.86-1.618-1.923-1.808-2.248-.19-.325-.02-.5.143-.663.146-.146.325-.38.488-.57.163-.19.217-.325.325-.542.108-.217.054-.407-.027-.57-.082-.163-.73-1.76-1-2.41-.263-.633-.53-.548-.73-.558-.19-.008-.407-.01-.624-.01a1.2 1.2 0 0 0-.868.407c-.298.325-1.137 1.11-1.137 2.707s1.164 3.14 1.327 3.357c.163.217 2.29 3.497 5.55 4.905.776.335 1.38.535 1.852.685.778.248 1.486.213 2.046.13.624-.093 1.92-.785 2.19-1.543.271-.76.271-1.41.19-1.543-.082-.135-.298-.216-.623-.38Z" />
+    </svg>
+  );
+}
+
+function WhatsAppFloat() {
+  const phoneNumber = '27615879808'; // 0615879808 in international format (SA country code 27, leading 0 dropped)
+  const message = "Hi Reconcile Group, I'd like to enquire about your services.";
+  const href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Chat with Reconcile Group on WhatsApp"
+      className="group fixed bottom-6 right-6 z-50 flex items-center gap-3"
+    >
+      <span className="hidden whitespace-nowrap rounded-lg bg-[#0a1929] px-3 py-2 text-xs font-semibold text-[#fff7e8] opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 sm:block">
+        Chat on WhatsApp
+      </span>
+      <span className="relative flex h-16 w-16 items-center justify-center">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#25D366] opacity-40" />
+        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-black/30 transition-transform duration-200 group-hover:scale-110">
+          <WhatsAppIcon size={30} />
+        </span>
+      </span>
+    </a>
+  );
+}
+
 function HeroVideo() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoARef = useRef<HTMLVideoElement>(null);
@@ -87,7 +129,7 @@ export default function App() {
   const [selectedRegion, setSelectedRegion] = useState<string>('Limpopo');
   const [expandedService, setExpandedService] = useState<string | null>(null);
   const [showEstimator, setShowEstimator] = useState(false);
-  
+
   // Quick Estimator State
   const [estService, setEstService] = useState('Mining Security');
   const [estDuration, setEstDuration] = useState('1-3 Months');
@@ -122,7 +164,7 @@ export default function App() {
               <span className="block text-[9px] uppercase tracking-[.12em] text-[#d04a43]">Integrated Mining Services</span>
             </div>
           </a>
-          
+
           <nav className={`${menuOpen ? 'absolute left-0 right-0 top-[76px] flex flex-col gap-6 border-b border-white/10 bg-[#07131e] p-6 shadow-2xl' : 'hidden'} md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0`}>
             {navItems.map(({ href, label, icon: Icon }) => (
               <a key={href} href={href} onClick={closeMenu} className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.15em] text-[#fff7e8] transition-colors hover:text-[#d04a43]">
@@ -157,7 +199,7 @@ export default function App() {
           <HeroVideo />
           <div className="absolute inset-0 bg-gradient-to-t from-[#07131e] via-[#07131e]/75 to-[#07131e]/40" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px]" />
-          
+
           <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-20">
             <div className="mb-8 flex items-center gap-4">
               <img src="/logo.png" alt="Reconcile Group logo" className="h-24 w-24 rounded-2xl object-cover ring-1 ring-white/20 shadow-2xl md:h-28 md:w-28" />
@@ -165,14 +207,14 @@ export default function App() {
                 <span className="text-[10px] font-mono tracking-widest text-[#e7b85e] uppercase">PSIRA Registered • SARS Compliant</span>
               </div>
             </div>
-            
+
             <div className="mb-6 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.25em]">
               <span className="h-2.5 w-2.5 rounded-full bg-[#d04a43] animate-pulse" />
               <span className="text-[#e7b85e]">South Africa</span>
               <span className="text-white/40">/</span>
               <span className="text-[#e7b85e]">On The Ground</span>
             </div>
-            
+
             <h1 className="max-w-4xl text-[clamp(2.75rem,6.5vw,5.5rem)] font-extrabold leading-[0.92] tracking-tight">
               Mining Support,<br />
               <span className="text-[#e64a3a]">Security &amp;<br />Technical<br />Services</span>
@@ -257,10 +299,10 @@ export default function App() {
                         {isExpanded ? 'Less info' : 'More info'} <ChevronDown size={14} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                       </button>
                     </div>
-                    
+
                     <h3 className="mt-6 text-3xl font-bold uppercase leading-[.9] text-[#fff7e8]">{service.title}</h3>
                     <p className="mt-3 text-sm font-semibold text-[#d04a43]">{service.lead}</p>
-                    
+
                     <ul className={`mt-6 space-y-2 border-t border-[#294256] pt-4 ${isExpanded ? 'block' : 'block'}`}>
                       {service.items.map((item) => (
                         <li key={item} className="flex items-start gap-3 text-sm text-[#becbd4]">
@@ -272,7 +314,7 @@ export default function App() {
                   </article>
                 );
               })}
-              
+
               <div className="flex min-h-[220px] flex-col justify-between border border-[#d04a43] bg-[#a01c1c] p-6 shadow-xl">
                 <Zap size={28} className="text-[#fff7e8]" />
                 <div>
@@ -292,7 +334,7 @@ export default function App() {
           <div className="mx-auto max-w-7xl">
             <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Where we work</p>
             <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-6xl">Close to the operation.</h2>
-            
+
             <div className="mt-14 grid gap-14 md:grid-cols-2">
               <div>
                 <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">
@@ -335,7 +377,7 @@ export default function App() {
                     </span>
                   ))}
                 </div>
-                
+
                 <div className="mt-10 rounded-xl bg-[#0e2235] p-6 text-[#fff7e8]">
                   <h4 className="text-lg font-bold uppercase tracking-wider text-[#e7b85e]">Rapid Deployment Guarantee</h4>
                   <p className="mt-2 text-xs leading-relaxed text-[#becbd4]">
@@ -397,6 +439,9 @@ export default function App() {
                 </a>
                 <a href="tel:0646492868" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
                   <Phone className="text-[#a01c1c]" size={19} />064 649 2868 <small className="text-[#52616e]">Cell</small>
+                </a>
+                <a href="https://wa.me/27615879808" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
+                  <WhatsAppIcon size={19} />061 587 9808 <small className="text-[#52616e]">WhatsApp</small>
                 </a>
                 <a href="mailto:tmaponyane@icloud.com" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
                   <Mail className="text-[#a01c1c]" size={19} />tmaponyane@icloud.com
@@ -472,7 +517,7 @@ export default function App() {
               <span className="text-xs font-bold uppercase tracking-wider">Quick Scope Estimator</span>
             </div>
             <h3 className="mt-2 text-2xl font-bold uppercase">Configure Site Needs</h3>
-            
+
             <div className="mt-6 space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-[#7890a1]">Select Service Type</label>
@@ -525,6 +570,9 @@ export default function App() {
         </div>
       )}
 
+      {/* WhatsApp Floating Button */}
+      <WhatsAppFloat />
+
       {/* Footer */}
       <footer className="border-t border-white/10 bg-[#081521] px-5 py-10">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -543,3 +591,5 @@ export default function App() {
         </div>
       </footer>
     </div>
+  );
+}
