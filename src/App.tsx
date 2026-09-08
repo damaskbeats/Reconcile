@@ -9,6 +9,7 @@ const navItems = [
   { href: '#about', label: 'Company', icon: Building2 },
   { href: '#services', label: 'Capabilities', icon: Wrench },
   { href: '#reach', label: 'Footprint', icon: MapPin },
+  { href: '#locations', label: 'Locations', icon: MapPin },
   { href: '#contact', label: 'Contact', icon: Phone },
 ];
 
@@ -22,12 +23,12 @@ const services = [
   { number: '07', title: 'Supply & Services', lead: 'The details that keep a site ready.', items: ['PPE and safety equipment', 'Industrial consumables', 'Tools and site equipment', 'Cleaning and hygiene services', 'General trading and supply'] },
 ];
 
-const regionDetails: Record<string, { base: string; focus: string }> = {
-  'Limpopo': { base: 'Northam HQ & Waterberg Hub', focus: 'Platinum, Coal & Heavy Industry Operations' },
-  'North West': { base: 'Rustenburg Operational Office', focus: 'PGM Mining Belt & Infrastructure Support' },
-  'Gauteng': { base: 'Centurion Logistics Hub', focus: 'Corporate Security & Technology Monitoring' },
-  'Mpumalanga': { base: 'eMalahleni / Witbank Field Support', focus: 'Energy, Coal Operations & Heavy Fleet Logistics' },
-  'KwaZulu-Natal': { base: 'Richards Bay & Durban Supply Route', focus: 'Port Security, Logistics & Infrastructure' },
+const regionDetails: Record<string, { base: string; focus: string; lat: number; lng: number }> = {
+  'Limpopo': { base: 'Northam HQ & Waterberg Hub', focus: 'Platinum, Coal & Heavy Industry Operations', lat: -24.9167, lng: 27.2667 },
+  'North West': { base: 'Rustenburg Operational Office', focus: 'PGM Mining Belt & Infrastructure Support', lat: -25.6672, lng: 27.2424 },
+  'Gauteng': { base: 'Centurion Logistics Hub', focus: 'Corporate Security & Technology Monitoring', lat: -25.8601, lng: 28.1878 },
+  'Mpumalanga': { base: 'eMalahleni / Witbank Field Support', focus: 'Energy, Coal Operations & Heavy Fleet Logistics', lat: -25.8752, lng: 29.2318 },
+  'KwaZulu-Natal': { base: 'Richards Bay & Durban Supply Route', focus: 'Port Security, Logistics & Infrastructure', lat: -28.7830, lng: 32.0377 },
 };
 
 const regions = Object.keys(regionDetails);
@@ -118,6 +119,174 @@ function HeroVideo() {
     <div ref={wrapperRef} className="absolute inset-0" aria-hidden="true">
       <video ref={videoARef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: active === 'a' ? 1 : 0 }} src="/hero-drone-dock-a.mp4" poster="/poster-dock-a.jpg" autoPlay muted playsInline preload="auto" onEnded={() => handleEnded('a')} onError={() => setHasError(true)} />
       <video ref={videoBRef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: active === 'b' ? 1 : 0 }} src="/hero-drone-dock-b.mp4" poster="/poster-dock-b.jpg" muted playsInline preload="auto" onEnded={() => handleEnded('b')} onError={() => setHasError(true)} />
+    </div>
+  );
+}
+
+// Leaflet + OpenStreetMap loader (no API key required) + multi-pin map.
+const LEAFLET_CSS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+const LEAFLET_JS_URL = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+
+declare global {
+  interface Window {
+    L?: any;
+  }
+}
+
+function loadLeaflet(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.L) {
+      resolve();
+      return;
+    }
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = LEAFLET_CSS_URL;
+      document.head.appendChild(link);
+    }
+    const existing = document.getElementById('leaflet-script') as HTMLScriptElement | null;
+    if (existing) {
+      existing.addEventListener('load', () => resolve());
+      existing.addEventListener('error', () => reject(new Error('Failed to load Leaflet script')));
+      return;
+    }
+    const script = document.createElement('script');
+    script.id = 'leaflet-script';
+    script.src = LEAFLET_JS_URL;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Leaflet script'));
+    document.head.appendChild(script);
+  });
+}
+
+function LocationsMap({
+  locations,
+  selectedRegion,
+  onSelectRegion,
+}: {
+  locations: Record<string, { base: string; focus: string; lat: number; lng: number }>;
+  selectedRegion: string;
+  onSelectRegion: (region: string) => void;
+}) {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const markersRef = useRef<Record<string, any>>({});
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadLeaflet()
+      .then(() => {
+        if (cancelled || !mapContainerRef.current) return;
+        const L = window.L;
+
+        // Guard against double-init (e.g. React StrictMode / hot reload)
+        if ((mapContainerRef.current as any)._leaflet_id) {
+          return;
+        }
+
+        const map = L.map(mapContainerRef.current, {
+          center: [-26.5, 28.8],
+          zoom: 6,
+          scrollWheelZoom: false,
+        });
+        mapRef.current = map;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 18,
+        }).addTo(map);
+
+        const pinIcon = L.divIcon({
+          className: '',
+          html: `<div style="width:22px;height:22px;border-radius:9999px;background:#d04a43;border:2px solid #fff7e8;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11],
+        });
+
+        Object.entries(locations).forEach(([name, loc]) => {
+          const marker = L.marker([loc.lat, loc.lng], { icon: pinIcon }).addTo(map);
+          marker.bindPopup(
+            `<div style="font-family:sans-serif;color:#0a1929;">
+               <strong style="display:block;font-size:13px;margin-bottom:2px;">${name}</strong>
+               <span style="display:block;font-size:12px;">${loc.base}</span>
+               <span style="display:block;font-size:11px;color:#52616e;margin-top:2px;">${loc.focus}</span>
+             </div>`
+          );
+          marker.on('click', () => onSelectRegion(name));
+          markersRef.current[name] = marker;
+        });
+
+        // Leaflet can compute a 0-size map if the container wasn't fully laid out
+        // at init time (common inside flex/grid or below-the-fold sections).
+        // Force a resize check shortly after mount, and again on window resize.
+        const fixSize = () => map.invalidateSize();
+        requestAnimationFrame(fixSize);
+        setTimeout(fixSize, 250);
+        setTimeout(fixSize, 800);
+        window.addEventListener('resize', fixSize);
+
+        // Also re-check when the section scrolls into view
+        const observer = new IntersectionObserver((entries) => {
+          if (entries[0]?.isIntersecting) fixSize();
+        });
+        observer.observe(mapContainerRef.current);
+
+        (map as any).__cleanup = () => {
+          window.removeEventListener('resize', fixSize);
+          observer.disconnect();
+        };
+
+        if (!cancelled) setStatus('ready');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('error');
+      });
+
+    return () => {
+      cancelled = true;
+      if (mapRef.current) {
+        (mapRef.current as any).__cleanup?.();
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [locations]);
+
+  // Pan/highlight when selectedRegion changes from outside the map (e.g. province buttons)
+  useEffect(() => {
+    if (status !== 'ready' || !mapRef.current) return;
+    const loc = locations[selectedRegion];
+    const marker = markersRef.current[selectedRegion];
+    if (!loc || !marker) return;
+    mapRef.current.flyTo([loc.lat, loc.lng], 8, { duration: 0.75 });
+    marker.openPopup();
+  }, [selectedRegion, status, locations]);
+
+  if (status === 'error') {
+    return (
+      <div className="flex h-[420px] w-full flex-col items-center justify-center gap-3 border border-[#294256] bg-[#10283c] p-8 text-center">
+        <MapPin size={28} className="text-[#d04a43]" />
+        <p className="text-sm font-semibold text-[#fff7e8]">Map unavailable</p>
+        <p className="max-w-sm text-xs text-[#becbd4]">
+          Couldn't load the map tiles. Check your internet connection and refresh the page.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-[420px] w-full overflow-hidden border border-[#294256] md:h-[520px]">
+      {status === 'loading' && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#10283c]">
+          <p className="text-xs uppercase tracking-wider text-[#7890a1]">Loading map…</p>
+        </div>
+      )}
+      <div ref={mapContainerRef} className="h-full w-full" />
     </div>
   );
 }
@@ -329,68 +498,66 @@ export default function App() {
           </div>
         </section>
 
-        {/* Geographic Reach & Sectors — full-bleed open-cast mine photo background */}
-        <section id="reach" className="relative overflow-hidden px-5 py-24 text-[#fff7e8] md:py-32">
+        {/* Geographic Reach & Sectors — full-bleed open-cast mine photo background, original light theme */}
+        <section id="reach" className="relative overflow-hidden px-5 py-24 text-[#0a1929] md:py-32">
           {/* Background photo */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: 'url(/open-cast.jpg)' }}
+          <img
+            src="/open-cast.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-          {/* Dark overlays for text readability */}
-          <div className="absolute inset-0 bg-[#07131e]/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#07131e] via-[#07131e]/55 to-[#07131e]/70" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]" />
 
           <div className="relative z-10 mx-auto max-w-7xl">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#e64a3a]">Where we work</p>
-            <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-6xl">Close to the operation.</h2>
+            <p className="mb-4 inline-block bg-[#f2eee6] px-3 py-1 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Where we work</p>
+            <h2 className="inline-block bg-[#f2eee6] px-3 py-1 text-4xl font-bold uppercase leading-[.95] md:text-6xl">Close to the operation.</h2>
 
             <div className="mt-14 grid gap-14 md:grid-cols-2">
-              <div>
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#d9e0e5]">
-                  Active Operating Footprint <span className="text-xs font-normal text-[#e7b85e]">(Click province for focus)</span>
+              <div className="bg-[#f2eee6]/95 p-6 shadow-lg backdrop-blur-sm">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">
+                  Active Operating Footprint <span className="text-xs font-normal text-[#a01c1c]">(Click province for focus)</span>
                 </p>
-                <div className="grid grid-cols-2 gap-4 border-l-2 border-[#d04a43] pl-5 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 border-l-2 border-[#a01c1c] pl-5 sm:grid-cols-3">
                   {regions.map((r, i) => {
                     const isSelected = selectedRegion === r;
                     return (
                       <button
                         key={r}
                         onClick={() => setSelectedRegion(r)}
-                        className={`text-left border-b py-4 transition-all ${isSelected ? 'border-[#d04a43] bg-black/30 px-2' : 'border-white/20 hover:border-[#d04a43]'}`}
+                        className={`text-left border-b py-4 transition-all ${isSelected ? 'border-[#a01c1c] bg-[#e8e2d7]/60 px-2' : 'border-[#c9c4b9] hover:border-[#a01c1c]'}`}
                       >
-                        <span className="text-xs text-[#e7b85e] font-mono">0{i + 1}</span>
-                        <p className={`mt-1 font-semibold ${isSelected ? 'text-[#e64a3a]' : 'text-[#fff7e8]'}`}>{r}</p>
+                        <span className="text-xs text-[#a01c1c] font-mono">0{i + 1}</span>
+                        <p className={`mt-1 font-semibold ${isSelected ? 'text-[#a01c1c]' : 'text-[#0a1929]'}`}>{r}</p>
                       </button>
                     );
                   })}
                 </div>
 
                 {selectedRegion && regionDetails[selectedRegion] && (
-                  <div className="mt-6 rounded-lg bg-black/40 backdrop-blur-sm p-5 border border-white/15">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#e64a3a]">
+                  <div className="mt-6 rounded-lg bg-[#e8e2d7] p-5 border border-[#c9c4b9]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#a01c1c]">
                       <MapPin size={15} />
                       <span>{selectedRegion} Strategic Operational Hub</span>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-[#fff7e8]">{regionDetails[selectedRegion].base}</p>
-                    <p className="mt-1 text-xs text-[#d9e0e5]">{regionDetails[selectedRegion].focus}</p>
+                    <p className="mt-2 text-sm font-semibold text-[#0a1929]">{regionDetails[selectedRegion].base}</p>
+                    <p className="mt-1 text-xs text-[#52616e]">{regionDetails[selectedRegion].focus}</p>
                   </div>
                 )}
               </div>
 
-              <div>
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#d9e0e5]">Sectors we serve</p>
+              <div className="bg-[#f2eee6]/95 p-6 shadow-lg backdrop-blur-sm">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">Sectors we serve</p>
                 <div className="flex flex-wrap gap-2">
                   {industries.map((ind) => (
-                    <span key={ind} className="border border-white/25 bg-black/30 px-3.5 py-2.5 text-sm font-semibold text-[#fff7e8] hover:border-[#d04a43] transition-colors">
+                    <span key={ind} className="border border-[#c9c4b9] bg-[#e8e2d7]/40 px-3.5 py-2.5 text-sm font-semibold text-[#0a1929] hover:border-[#a01c1c] transition-colors">
                       {ind}
                     </span>
                   ))}
                 </div>
 
-                <div className="mt-10 rounded-xl bg-black/40 backdrop-blur-sm p-6 text-[#fff7e8] border border-white/15">
-                  <h4 className="text-lg font-bold uppercase tracking-wider text-[#e7b85e]">Rapid Deployment Guarantee</h4>
-                  <p className="mt-2 text-xs leading-relaxed text-[#d9e0e5]">
+                <div className="mt-10 rounded-xl bg-[#e8e2d7] p-6 border border-[#c9c4b9]">
+                  <h4 className="text-lg font-bold uppercase tracking-wider text-[#a01c1c]">Rapid Deployment Guarantee</h4>
+                  <p className="mt-2 text-xs leading-relaxed text-[#52616e]">
                     Equipped with mobile control units, drone teams, and rapid-response tactical teams ready for fast mobilization across Southern African mining corridors.
                   </p>
                 </div>
@@ -430,6 +597,47 @@ export default function App() {
               <CircleCheck className="mb-5 text-[#d04a43] transition-transform group-hover:scale-110" size={38} />
               <p className="max-w-sm text-4xl font-bold uppercase leading-[.9]">Intelligence in the air.</p>
               <p className="mt-4 text-xs text-[#becbd4] leading-relaxed">Thermal aerial mapping, perimeter drone patrols, and AI CCTV analytics integrated with central risk command.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Locations Map Section */}
+        <section id="locations" className="bg-[#0e2235] px-5 py-24 md:py-32">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Find us on the map</p>
+            <h2 className="max-w-3xl text-4xl font-bold uppercase leading-[.95] text-[#fff7e8] md:text-6xl">
+              All operational hubs, one view.
+            </h2>
+            <p className="mt-6 max-w-2xl text-sm text-[#becbd4]">
+              Every pin marks an active Reconcile Group hub. Click a pin — or a province below — to see the base and operational focus for that region.
+            </p>
+
+            <div className="mt-12">
+              <LocationsMap
+                locations={regionDetails}
+                selectedRegion={selectedRegion}
+                onSelectRegion={setSelectedRegion}
+              />
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              {regions.map((r) => {
+                const isSelected = selectedRegion === r;
+                return (
+                  <button
+                    key={r}
+                    onClick={() => setSelectedRegion(r)}
+                    className={`flex items-center gap-2 border px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all ${
+                      isSelected
+                        ? 'border-[#d04a43] bg-[#d04a43] text-white'
+                        : 'border-[#294256] bg-[#10283c] text-[#becbd4] hover:border-[#d04a43]'
+                    }`}
+                  >
+                    <MapPin size={13} />
+                    {r}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -603,4 +811,3 @@ export default function App() {
     </div>
   );
 }
-
