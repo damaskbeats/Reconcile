@@ -329,68 +329,66 @@ export default function App() {
           </div>
         </section>
 
-        {/* Geographic Reach & Sectors — full-bleed open-cast mine photo background */}
-        <section id="reach" className="relative overflow-hidden px-5 py-24 text-[#fff7e8] md:py-32">
+        {/* Geographic Reach & Sectors — full-bleed open-cast mine photo background, original light theme */}
+        <section id="reach" className="relative overflow-hidden px-5 py-24 text-[#0a1929] md:py-32">
           {/* Background photo */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: 'url(/open-cast.jpg)' }}
+          <img
+            src="/open-cast.jpg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-          {/* Dark overlays for text readability */}
-          <div className="absolute inset-0 bg-[#07131e]/80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#07131e] via-[#07131e]/55 to-[#07131e]/70" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]" />
 
           <div className="relative z-10 mx-auto max-w-7xl">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#e64a3a]">Where we work</p>
-            <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-6xl">Close to the operation.</h2>
+            <p className="mb-4 inline-block bg-[#f2eee6] px-3 py-1 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Where we work</p>
+            <h2 className="inline-block bg-[#f2eee6] px-3 py-1 text-4xl font-bold uppercase leading-[.95] md:text-6xl">Close to the operation.</h2>
 
             <div className="mt-14 grid gap-14 md:grid-cols-2">
-              <div>
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#d9e0e5]">
-                  Active Operating Footprint <span className="text-xs font-normal text-[#e7b85e]">(Click province for focus)</span>
+              <div className="bg-[#f2eee6]/95 p-6 shadow-lg backdrop-blur-sm">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">
+                  Active Operating Footprint <span className="text-xs font-normal text-[#a01c1c]">(Click province for focus)</span>
                 </p>
-                <div className="grid grid-cols-2 gap-4 border-l-2 border-[#d04a43] pl-5 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 border-l-2 border-[#a01c1c] pl-5 sm:grid-cols-3">
                   {regions.map((r, i) => {
                     const isSelected = selectedRegion === r;
                     return (
                       <button
                         key={r}
                         onClick={() => setSelectedRegion(r)}
-                        className={`text-left border-b py-4 transition-all ${isSelected ? 'border-[#d04a43] bg-black/30 px-2' : 'border-white/20 hover:border-[#d04a43]'}`}
+                        className={`text-left border-b py-4 transition-all ${isSelected ? 'border-[#a01c1c] bg-[#e8e2d7]/60 px-2' : 'border-[#c9c4b9] hover:border-[#a01c1c]'}`}
                       >
-                        <span className="text-xs text-[#e7b85e] font-mono">0{i + 1}</span>
-                        <p className={`mt-1 font-semibold ${isSelected ? 'text-[#e64a3a]' : 'text-[#fff7e8]'}`}>{r}</p>
+                        <span className="text-xs text-[#a01c1c] font-mono">0{i + 1}</span>
+                        <p className={`mt-1 font-semibold ${isSelected ? 'text-[#a01c1c]' : 'text-[#0a1929]'}`}>{r}</p>
                       </button>
                     );
                   })}
                 </div>
 
                 {selectedRegion && regionDetails[selectedRegion] && (
-                  <div className="mt-6 rounded-lg bg-black/40 backdrop-blur-sm p-5 border border-white/15">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#e64a3a]">
+                  <div className="mt-6 rounded-lg bg-[#e8e2d7] p-5 border border-[#c9c4b9]">
+                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#a01c1c]">
                       <MapPin size={15} />
                       <span>{selectedRegion} Strategic Operational Hub</span>
                     </div>
-                    <p className="mt-2 text-sm font-semibold text-[#fff7e8]">{regionDetails[selectedRegion].base}</p>
-                    <p className="mt-1 text-xs text-[#d9e0e5]">{regionDetails[selectedRegion].focus}</p>
+                    <p className="mt-2 text-sm font-semibold text-[#0a1929]">{regionDetails[selectedRegion].base}</p>
+                    <p className="mt-1 text-xs text-[#52616e]">{regionDetails[selectedRegion].focus}</p>
                   </div>
                 )}
               </div>
 
-              <div>
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#d9e0e5]">Sectors we serve</p>
+              <div className="bg-[#f2eee6]/95 p-6 shadow-lg backdrop-blur-sm">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">Sectors we serve</p>
                 <div className="flex flex-wrap gap-2">
                   {industries.map((ind) => (
-                    <span key={ind} className="border border-white/25 bg-black/30 px-3.5 py-2.5 text-sm font-semibold text-[#fff7e8] hover:border-[#d04a43] transition-colors">
+                    <span key={ind} className="border border-[#c9c4b9] bg-[#e8e2d7]/40 px-3.5 py-2.5 text-sm font-semibold text-[#0a1929] hover:border-[#a01c1c] transition-colors">
                       {ind}
                     </span>
                   ))}
                 </div>
 
-                <div className="mt-10 rounded-xl bg-black/40 backdrop-blur-sm p-6 text-[#fff7e8] border border-white/15">
+                <div className="mt-10 rounded-xl bg-[#0e2235] p-6 text-[#fff7e8]">
                   <h4 className="text-lg font-bold uppercase tracking-wider text-[#e7b85e]">Rapid Deployment Guarantee</h4>
-                  <p className="mt-2 text-xs leading-relaxed text-[#d9e0e5]">
+                  <p className="mt-2 text-xs leading-relaxed text-[#becbd4]">
                     Equipped with mobile control units, drone teams, and rapid-response tactical teams ready for fast mobilization across Southern African mining corridors.
                   </p>
                 </div>
