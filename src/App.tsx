@@ -1,4 +1,162 @@
-            <div className="grid gap-8 sm:grid-cols-2">
+import React, { useState } from 'react';
+import { 
+  ShieldCheck, 
+  Clock3, 
+  Zap, 
+  CircleCheck, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  ChevronRight, 
+  Calculator, 
+  X, 
+  MessageSquare 
+} from 'lucide-react';
+
+interface ServiceItem {
+  number: string;
+  title: string;
+  desc: string;
+}
+
+const services: ServiceItem[] = [
+  {
+    number: '01',
+    title: 'Mining Security & Asset Protection',
+    desc: 'High-visibility tactical guarding, access control, anti-poaching, and asset retrieval across mine perimeters.'
+  },
+  {
+    number: '02',
+    title: 'Industrial & Site Engineering Support',
+    desc: 'On-site technical support, civil works integration, structural maintenance, and mechanical safety oversight.'
+  },
+  {
+    number: '03',
+    title: 'Thermal Drone & Electronic Surveillance',
+    desc: 'Long-range thermal aerial surveillance, biometrics, CCTV network installation, and automated perimeter alerts.'
+  },
+  {
+    number: '04',
+    title: 'Facilities & Logistics Management',
+    desc: 'Turnkey facility maintenance, site hygiene, supply chain escorting, and fleet route protection.'
+  }
+];
+
+export default function App() {
+  const year = new Date().getFullYear();
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const [formError, setFormError] = useState<string>('');
+  const [showEstimator, setShowEstimator] = useState<boolean>(false);
+  const [estService, setEstService] = useState<string>(services[0].title);
+  const [estDuration, setEstDuration] = useState<string>('12+ Months');
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+
+    if (!name || !email) {
+      setFormError('Please fill in all required fields.');
+      return;
+    }
+
+    setFormError('');
+    setSubmitted(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#040b12] text-[#fff7e8] font-sans">
+      {/* Header / Navigation */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#040b12]/90 backdrop-blur-md px-5 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-[#10283c] border border-[#294256] flex items-center justify-center font-bold text-[#d04a43]">
+              RG
+            </div>
+            <div>
+              <p className="text-sm font-bold uppercase tracking-widest text-[#fff7e8]">Reconcile Group</p>
+              <p className="text-[10px] uppercase text-[#d04a43] tracking-wider">Integrated Mining Services</p>
+            </div>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-[#becbd4]">
+            <a href="#about" className="hover:text-[#fff7e8] transition-colors">About</a>
+            <a href="#services" className="hover:text-[#fff7e8] transition-colors">Capabilities</a>
+            <a href="#reach" className="hover:text-[#fff7e8] transition-colors">Footprint</a>
+            <a href="#contact" className="hover:text-[#fff7e8] transition-colors">Contact</a>
+          </nav>
+
+          <button 
+            onClick={() => setShowEstimator(true)}
+            className="flex items-center gap-2 bg-[#a01c1c] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-all hover:bg-[#c23b35]"
+          >
+            <Calculator size={14} /> Scope Estimator
+          </button>
+        </div>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section className="relative overflow-hidden border-b border-white/10 px-5 py-24 md:py-32 bg-gradient-to-b from-[#07131e] to-[#040b12]">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[.25em] text-[#d04a43]">
+              South Africa Operational Capability
+            </p>
+            <h1 className="text-4xl font-black uppercase leading-[.95] text-[#fff7e8] sm:text-6xl lg:text-7xl">
+              Precision Security <br />
+              <span className="text-[#d04a43]">&amp; Industrial Support</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-base text-[#becbd4] sm:text-lg">
+              Delivering high-integrity perimeter defense, engineering support, and facility management tailored for mining sites, critical infrastructure, and heavy industrial operations.
+            </p>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <a 
+                href="#contact" 
+                className="bg-[#a01c1c] px-6 py-3.5 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-[#c23b35] flex items-center gap-2"
+              >
+                Request Operations Assessment <ChevronRight size={16} />
+              </a>
+              <a 
+                href="#services" 
+                className="border border-[#294256] bg-[#10283c] px-6 py-3.5 text-xs font-bold uppercase tracking-widest text-[#fff7e8] hover:bg-[#1a3852] transition-all"
+              >
+                Explore Capabilities
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Services Section */}
+        <section id="services" className="border-b border-white/10 bg-[#07131e] px-5 py-20">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-12">
+              <p className="text-xs font-bold uppercase tracking-[.2em] text-[#d04a43]">Core Deliverables</p>
+              <h2 className="text-3xl font-bold uppercase text-[#fff7e8] md:text-5xl mt-2">
+                Operational Capabilities
+              </h2>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {services.map((s) => (
+                <div key={s.number} className="border border-[#294256] bg-[#10283c] p-6 transition-all hover:border-[#d04a43]">
+                  <span className="text-xs font-mono font-bold text-[#d04a43]">{s.number}</span>
+                  <h3 className="mt-3 text-lg font-bold uppercase text-[#fff7e8]">{s.title}</h3>
+                  <p className="mt-3 text-sm text-[#becbd4] leading-relaxed">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Values Banner */}
+        <section id="about" className="bg-[#a01c1c] px-5 py-16 text-[#fff7e8]">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="text-2xl font-bold uppercase tracking-wider mb-8 border-b border-white/20 pb-4">
+              Operational Standards &amp; Principles
+            </h2>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               <div className="border-l-2 border-white/30 pl-4">
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#ffd4c5]">
                   <ShieldCheck size={16} /> 01. Integrity
@@ -42,7 +200,7 @@
               <div>
                 <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Initiate contact</p>
                 <h2 className="text-4xl font-bold uppercase leading-[.95] text-[#fff7e8] md:text-6xl">
-                  Let's discuss<br /><span className="text-[#d04a43]">Your Site Scope</span>
+                  Let&apos;s discuss<br /><span className="text-[#d04a43]">Your Site Scope</span>
                 </h2>
                 <p className="mt-6 text-base text-[#becbd4] max-w-md">
                   Reach out to our operations desk for quotes, site assessments, or tenders across South Africa.
@@ -174,7 +332,7 @@
 
                     <button 
                       type="submit" 
-                      className="w-full bg-[#a01c1c] py-4 text-xs font-bold uppercase tracking-[.15em] text-white transition-all hover:bg-[#c23b35] hover:shadow-lg shadow-[#a01c1c]/30 flex items-center justify-center gap-2"
+                      className="w-full bg-[#a01c1c] py-4 text-xs font-bold uppercase tracking-[.15em] text-white transition-all hover:bg-[#c23b35] flex items-center justify-center gap-2"
                     >
                       Submit Request <ChevronRight size={16} />
                     </button>
@@ -220,6 +378,7 @@
                   {['Ad-hoc / Shutdown', '1-3 Months', '12+ Months'].map(dur => (
                     <button 
                       key={dur} 
+                      type="button"
                       onClick={() => setEstDuration(dur)}
                       className={`py-2 px-3 text-xs border text-center transition-colors ${estDuration === dur ? 'border-[#d04a43] bg-[#d04a43]/20 text-[#fff7e8]' : 'border-[#294256] bg-[#07131e] text-[#7890a1]'}`}
                     >
@@ -233,7 +392,7 @@
                 <span className="text-[10px] font-mono text-[#7890a1] uppercase block">Estimated Mobilisation Plan</span>
                 <p className="text-sm font-bold text-[#e7b85e] mt-1">Rapid 24-48 Hour On-Site Deployment</p>
                 <p className="text-xs text-[#becbd4] mt-1">
-                  Includes risk profile mapping, team deployment, and integration of drone/CCTV monitoring setup for {estService.toLowerCase()}.
+                  Includes risk profile mapping, team deployment, and integration of monitoring setup for {estService.toLowerCase()}.
                 </p>
               </div>
             </div>
@@ -252,14 +411,23 @@
         </div>
       )}
 
-      {/* Floating WhatsApp Button */}
-      <WhatsAppFloat />
+      {/* Floating WhatsApp Action Button */}
+      <a 
+        href="https://wa.me/27145470989" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[#25D366] px-4 py-3 rounded-full font-bold text-xs uppercase tracking-wider text-black shadow-lg hover:bg-[#20ba5a] transition-all"
+      >
+        <MessageSquare size={18} /> Direct Ops Desk
+      </a>
 
       {/* Footer */}
       <footer className="border-t border-white/10 bg-[#040b12] px-5 py-12 text-[#7890a1]">
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Reconcile Group logo" className="h-8 w-8 rounded-lg object-cover ring-1 ring-white/10" />
+            <div className="h-8 w-8 rounded-lg bg-[#10283c] border border-[#294256] flex items-center justify-center font-bold text-[#d04a43] text-xs">
+              RG
+            </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-[#fff7e8]">Reconcile Group</p>
               <p className="text-[10px] uppercase text-[#d04a43]">Integrated Mining Services</p>
@@ -269,7 +437,6 @@
           <div className="flex flex-wrap items-center gap-6 text-xs font-semibold uppercase tracking-wider">
             <a href="#about" className="hover:text-[#fff7e8] transition-colors">Company</a>
             <a href="#services" className="hover:text-[#fff7e8] transition-colors">Capabilities</a>
-            <a href="#reach" className="hover:text-[#fff7e8] transition-colors">Footprint</a>
             <a href="#contact" className="hover:text-[#fff7e8] transition-colors">Contact</a>
           </div>
 
