@@ -1,593 +1,281 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
-import {
-  ArrowRight, ArrowDownRight, Building2, MapPin, Phone, Mail, Wrench,
-  Menu, X, ShieldCheck, CircleCheck, Clock3, Check, Zap, ChevronRight,
-  Calculator, ChevronDown
-} from 'lucide-react';
-
-const navItems = [
-  { href: '#about', label: 'Company', icon: Building2 },
-  { href: '#services', label: 'Capabilities', icon: Wrench },
-  { href: '#reach', label: 'Footprint', icon: MapPin },
-  { href: '#contact', label: 'Contact', icon: Phone },
-];
-
-const services = [
-  { number: '01', title: 'Mining Security', lead: 'Protection built for active sites.', items: ['Armed & unarmed guarding', 'Access & traffic control', 'Thermal drone surveillance', 'AI CCTV & control rooms', 'Biometric access management'] },
-  { number: '02', title: 'Mining Support', lead: 'Keep production moving.', items: ['Conveyor & plant assistance', 'Materials handling', 'Pit and stockpile support', 'Equipment & fleet assistance', 'Site logistics coordination'] },
-  { number: '03', title: 'Engineering Support', lead: 'Technical hands that understand the shift.', items: ['Mechanical maintenance support', 'Electrical support services', 'Instrumentation assistance', 'Shutdown & planned maintenance', 'Technical labour deployment'] },
-  { number: '04', title: 'Civil & Infrastructure', lead: 'Strong foundations for what comes next.', items: ['Roads and access works', 'Earthworks & site preparation', 'Concrete and structural works', 'Stormwater & drainage', 'Facilities maintenance'] },
-  { number: '05', title: 'Mining Technology', lead: 'Situational awareness, elevated.', items: ['Drone mapping & inspection', 'Real-time monitoring', 'AI-enabled surveillance', 'Digital reporting & dashboards', 'Risk and incident intelligence'] },
-  { number: '06', title: 'Project Support', lead: 'One accountable partner on the ground.', items: ['Project mobilisation', 'HSE and compliance support', 'Workforce coordination', 'Procurement & site supply', 'Reporting and close-out'] },
-  { number: '07', title: 'Supply & Services', lead: 'The details that keep a site ready.', items: ['PPE and safety equipment', 'Industrial consumables', 'Tools and site equipment', 'Cleaning and hygiene services', 'General trading and supply'] },
-];
-
-const regionDetails: Record<string, { base: string; focus: string }> = {
-  'Limpopo': { base: 'Northam HQ & Waterberg Hub', focus: 'Platinum, Coal & Heavy Industry Operations' },
-  'North West': { base: 'Rustenburg Operational Office', focus: 'PGM Mining Belt & Infrastructure Support' },
-  'Gauteng': { base: 'Centurion Logistics Hub', focus: 'Corporate Security & Technology Monitoring' },
-  'Mpumalanga': { base: 'eMalahleni / Witbank Field Support', focus: 'Energy, Coal Operations & Heavy Fleet Logistics' },
-  'KwaZulu-Natal': { base: 'Richards Bay & Durban Supply Route', focus: 'Port Security, Logistics & Infrastructure' },
-};
-
-const regions = Object.keys(regionDetails);
-const industries = ['Mining', 'Industrial', 'Construction', 'Energy', 'Agriculture', 'Oil & Gas', 'Commercial', 'Government'];
-
-// WhatsApp brand mark (lucide-react has no official WhatsApp icon, so it's inlined as SVG)
-function WhatsAppIcon({ size = 28 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="currentColor"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path d="M16.004 3C9.377 3 4 8.373 4 15c0 2.34.65 4.53 1.777 6.4L4 29l7.79-1.744A11.93 11.93 0 0 0 16.004 27C22.63 27 28 21.627 28 15S22.63 3 16.004 3Zm0 21.818c-1.93 0-3.79-.52-5.41-1.5l-.388-.23-4.62 1.035 1.006-4.5-.253-.402A9.77 9.77 0 0 1 5.19 15c0-5.966 4.85-10.818 10.814-10.818S26.818 9.034 26.818 15 21.968 24.818 16.004 24.818Zm5.94-8.18c-.325-.163-1.92-.947-2.218-1.056-.297-.108-.514-.163-.73.163-.217.325-.838 1.056-1.028 1.273-.19.217-.38.244-.705.082-.325-.163-1.373-.506-2.615-1.612-.966-.86-1.618-1.923-1.808-2.248-.19-.325-.02-.5.143-.663.146-.146.325-.38.488-.57.163-.19.217-.325.325-.542.108-.217.054-.407-.027-.57-.082-.163-.73-1.76-1-2.41-.263-.633-.53-.548-.73-.558-.19-.008-.407-.01-.624-.01a1.2 1.2 0 0 0-.868.407c-.298.325-1.137 1.11-1.137 2.707s1.164 3.14 1.327 3.357c.163.217 2.29 3.497 5.55 4.905.776.335 1.38.535 1.852.685.778.248 1.486.213 2.046.13.624-.093 1.92-.785 2.19-1.543.271-.76.271-1.41.19-1.543-.082-.135-.298-.216-.623-.38Z" />
-    </svg>
-  );
-}
-
-function WhatsAppFloat() {
-  const phoneNumber = '27615879808'; // 0615879808 in international format (SA country code 27, leading 0 dropped)
-  const message = "Hi Reconcile Group, I'd like to enquire about your services.";
-  const href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Chat with Reconcile Group on WhatsApp"
-      className="group fixed bottom-6 right-6 z-50 flex items-center gap-3"
-    >
-      <span className="hidden whitespace-nowrap rounded-lg bg-[#0a1929] px-3 py-2 text-xs font-semibold text-[#fff7e8] opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100 sm:block">
-        Chat on WhatsApp
-      </span>
-      <span className="relative flex h-16 w-16 items-center justify-center">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#25D366] opacity-40" />
-        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-black/30 transition-transform duration-200 group-hover:scale-110">
-          <WhatsAppIcon size={30} />
-        </span>
-      </span>
-    </a>
-  );
-}
-
-function HeroVideo() {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const videoARef = useRef<HTMLVideoElement>(null);
-  const videoBRef = useRef<HTMLVideoElement>(null);
-  const [active, setActive] = useState<'a' | 'b'>('a');
-  const [isVisible, setIsVisible] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0.05 });
-    observer.observe(wrapper);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const activeVideo = active === 'a' ? videoARef.current : videoBRef.current;
-    const inactiveVideo = active === 'a' ? videoBRef.current : videoARef.current;
-    if (!activeVideo || hasError) return;
-    if (isVisible) void activeVideo.play().catch(() => {});
-    else activeVideo.pause();
-    inactiveVideo?.pause();
-  }, [active, isVisible, hasError]);
-
-  const handleEnded = (which: 'a' | 'b') => {
-    const next = which === 'a' ? 'b' : 'a';
-    setActive(next);
-    const nextRef = next === 'a' ? videoARef.current : videoBRef.current;
-    if (nextRef) {
-      nextRef.currentTime = 0;
-      if (isVisible) void nextRef.play().catch(() => {});
-    }
-  };
-
-  if (hasError) {
-    return <div ref={wrapperRef} className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/poster-dock-a.jpg)' }} />;
-  }
-
-  return (
-    <div ref={wrapperRef} className="absolute inset-0" aria-hidden="true">
-      <video ref={videoARef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: active === 'a' ? 1 : 0 }} src="/hero-drone-dock-a.mp4" poster="/poster-dock-a.jpg" autoPlay muted playsInline preload="auto" onEnded={() => handleEnded('a')} onError={() => setHasError(true)} />
-      <video ref={videoBRef} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" style={{ opacity: active === 'b' ? 1 : 0 }} src="/hero-drone-dock-b.mp4" poster="/poster-dock-b.jpg" muted playsInline preload="auto" onEnded={() => handleEnded('b')} onError={() => setHasError(true)} />
-    </div>
-  );
-}
-
-export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [formError, setFormError] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState<string>('Limpopo');
-  const [expandedService, setExpandedService] = useState<string | null>(null);
-  const [showEstimator, setShowEstimator] = useState(false);
-
-  // Quick Estimator State
-  const [estService, setEstService] = useState('Mining Security');
-  const [estDuration, setEstDuration] = useState('1-3 Months');
-
-  const year = new Date().getFullYear();
-  const closeMenu = () => setMenuOpen(false);
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    const name = String(data.get('name') || '').trim();
-    const email = String(data.get('email') || '').trim();
-    if (!name || !email) {
-      setFormError('Please add your name and email so our team can respond.');
-      return;
-    }
-    setFormError('');
-    setSubmitted(true);
-    form.reset();
-  };
-
-  return (
-    <div className="min-h-screen bg-[#07131e] text-[#fff7e8] font-sans antialiased selection:bg-[#a01c1c] selection:text-white">
-      {/* Header Bar */}
-      <header className="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-[#07131e]/90 backdrop-blur-md">
-        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-5">
-          <a href="#top" onClick={closeMenu} className="flex items-center gap-3 group">
-            <img src="/logo.png" alt="Reconcile Group logo" className="h-10 w-10 rounded-xl object-cover ring-1 ring-white/15 transition-transform group-hover:scale-105" />
-            <div className="hidden sm:block">
-              <span className="block text-xs font-bold uppercase tracking-[.18em] text-[#fff7e8]">Reconcile Group</span>
-              <span className="block text-[9px] uppercase tracking-[.12em] text-[#d04a43]">Integrated Mining Services</span>
-            </div>
-          </a>
-
-          <nav className={`${menuOpen ? 'absolute left-0 right-0 top-[76px] flex flex-col gap-6 border-b border-white/10 bg-[#07131e] p-6 shadow-2xl' : 'hidden'} md:static md:flex md:flex-row md:items-center md:gap-8 md:border-0 md:bg-transparent md:p-0`}>
-            {navItems.map(({ href, label, icon: Icon }) => (
-              <a key={href} href={href} onClick={closeMenu} className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.15em] text-[#fff7e8] transition-colors hover:text-[#d04a43]">
-                <Icon size={15} className="text-[#d04a43]" />{label}
-              </a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setShowEstimator(true)}
-              className="hidden items-center gap-1.5 border border-[#d04a43]/40 bg-[#d04a43]/10 px-3 py-2 text-xs font-semibold uppercase tracking-[.08em] text-[#e7b85e] hover:bg-[#d04a43]/20 xl:flex"
-            >
-              <Calculator size={14} /> Scope Estimator
-            </button>
-            <a href="tel:0145470989" className="hidden items-center gap-2 text-sm font-semibold lg:flex hover:text-[#d04a43] transition-colors">
-              <Phone size={15} className="text-[#d04a43]" /> 014 547 0989
-            </a>
-            <a href="#contact" className="bg-[#a01c1c] px-5 py-3 text-xs font-semibold uppercase tracking-[.08em] transition-all hover:bg-[#c23b35] hover:shadow-lg hover:shadow-[#a01c1c]/20">
-              Get a quote
-            </a>
-            <button onClick={() => setMenuOpen(!menuOpen)} className="border border-white/20 p-2 text-[#fff7e8] hover:bg-white/5 md:hidden" aria-label="Toggle menu">
-              {menuOpen ? <X size={21} /> : <Menu size={21} />}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main id="top">
-        {/* Hero Section */}
-        <section className="relative flex min-h-[100dvh] items-end overflow-hidden border-b border-white/10 pt-[76px]">
-          <HeroVideo />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#07131e] via-[#07131e]/75 to-[#07131e]/40" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:32px_32px]" />
-
-          <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-20">
-            <div className="mb-8 flex items-center gap-4">
-              <img src="/logo.png" alt="Reconcile Group logo" className="h-24 w-24 rounded-2xl object-cover ring-1 ring-white/20 shadow-2xl md:h-28 md:w-28" />
-              <div className="rounded-lg bg-black/40 px-3 py-1.5 backdrop-blur-md border border-white/10 hidden sm:block">
-                <span className="text-[10px] font-mono tracking-widest text-[#e7b85e] uppercase">PSIRA Registered • SARS Compliant</span>
-              </div>
-            </div>
-
-            <div className="mb-6 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.25em]">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#d04a43] animate-pulse" />
-              <span className="text-[#e7b85e]">South Africa</span>
-              <span className="text-white/40">/</span>
-              <span className="text-[#e7b85e]">On The Ground</span>
-            </div>
-
-            <h1 className="max-w-4xl text-[clamp(2.75rem,6.5vw,5.5rem)] font-extrabold leading-[0.92] tracking-tight">
-              Mining Support,<br />
-              <span className="text-[#e64a3a]">Security &amp;<br />Technical<br />Services</span>
-            </h1>
-
-            <p className="mt-8 max-w-xl text-base leading-relaxed text-[#d9e0e5] font-normal">
-              Reconcile Group is a South African black-owned company providing integrated security, mining support, engineering support, and infrastructure services to mining, industrial, construction, and public sectors. Combines trained personnel with thermal drone surveillance, AI-enabled CCTV, biometric access control, and real-time monitoring.
-            </p>
-
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href="#contact" className="inline-flex items-center gap-3 bg-[#a01c1c] px-6 py-4 font-semibold uppercase tracking-[.08em] transition-all hover:-translate-y-0.5 hover:bg-[#c23b35] shadow-lg shadow-[#a01c1c]/25">
-                Get a quote <ArrowDownRight size={18} />
-              </a>
-              <a href="#services" className="inline-flex items-center gap-3 border border-white/25 px-6 py-4 font-semibold uppercase tracking-[.08em] transition-all hover:border-white hover:bg-white/5">
-                Explore capabilities <ArrowRight size={17} />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="relative overflow-hidden bg-[#f2eee6] px-5 py-24 text-[#0a1929] md:py-32">
-          <div 
-            className="absolute right-0 top-1/2 z-0 h-[80%] w-full max-w-xl -translate-y-1/2 bg-contain bg-right bg-no-repeat opacity-20 mix-blend-multiply pointer-events-none md:opacity-35"
-            style={{ backgroundImage: 'url(/anpr.jpg)' }}
-          />
-
-          <div className="relative z-10 mx-auto max-w-7xl">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">The operating brief</p>
-            <h2 className="max-w-3xl text-4xl font-bold uppercase leading-[.95] md:text-6xl">
-              Company<br /><span className="text-[#d04a43]">About</span>
-            </h2>
-            <p className="mt-8 max-w-2xl text-xl leading-relaxed md:text-2xl font-medium">
-              Reconcile Group is a South African black-owned company providing integrated security, mining support, engineering support, and infrastructure services to mining, industrial, construction, and public sectors.
-            </p>
-            <p className="mt-6 max-w-2xl leading-relaxed text-[#52616e]">
-              Our teams combine disciplined field execution with thermal drone surveillance, AI CCTV, biometric access control and real-time monitoring. The result is a single contractor who understands the pressure of a live mine site — from the gate to the plant, from mobilisation to close-out.
-            </p>
-
-            <div className="mt-12 grid grid-cols-2 gap-6 border-t border-[#c9c4b9] pt-8 md:grid-cols-4">
-              <div>
-                <span className="block text-3xl font-extrabold text-[#a01c1c] md:text-4xl">100%</span>
-                <span className="mt-1 block text-xs font-bold uppercase tracking-wider text-[#52616e]">Black Owned</span>
-              </div>
-              <div>
-                <span className="block text-3xl font-extrabold text-[#a01c1c] md:text-4xl">24/7</span>
-                <span className="mt-1 block text-xs font-bold uppercase tracking-wider text-[#52616e]">Site Monitoring</span>
-              </div>
-              <div>
-                <span className="block text-3xl font-extrabold text-[#a01c1c] md:text-4xl">5+</span>
-                <span className="mt-1 block text-xs font-bold uppercase tracking-wider text-[#52616e]">Provinces Active</span>
-              </div>
-              <div>
-                <span className="block text-3xl font-extrabold text-[#a01c1c] md:text-4xl">Turnkey</span>
-                <span className="mt-1 block text-xs font-bold uppercase tracking-wider text-[#52616e]">Technical Execution</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Services / Capabilities Section */}
-        <section id="services" className="bg-[#0e2235] px-5 py-24 md:py-32">
-          <div className="mx-auto max-w-7xl">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Integrated capabilities</p>
-            <h2 className="max-w-3xl text-4xl font-bold uppercase leading-[.95] text-[#fff7e8] md:text-6xl">
-              The right capability at every handover.
-            </h2>
-            <div className="mt-14 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {services.map((service, i) => {
-                const isExpanded = expandedService === service.number;
-                return (
-                  <article 
-                    key={service.number} 
-                    className={`border border-[#294256] bg-[#10283c] p-6 transition-all ${i === 0 ? 'lg:col-span-2' : ''} hover:border-[#d04a43]/50`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#7890a1] font-mono">{service.number} / 07</span>
-                      <button 
-                        onClick={() => setExpandedService(isExpanded ? null : service.number)}
-                        className="text-xs text-[#d04a43] hover:underline flex items-center gap-1 md:hidden"
-                      >
-                        {isExpanded ? 'Less info' : 'More info'} <ChevronDown size={14} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                      </button>
-                    </div>
-
-                    <h3 className="mt-6 text-3xl font-bold uppercase leading-[.9] text-[#fff7e8]">{service.title}</h3>
-                    <p className="mt-3 text-sm font-semibold text-[#d04a43]">{service.lead}</p>
-
-                    <ul className={`mt-6 space-y-2 border-t border-[#294256] pt-4 ${isExpanded ? 'block' : 'block'}`}>
-                      {service.items.map((item) => (
-                        <li key={item} className="flex items-start gap-3 text-sm text-[#becbd4]">
-                          <Check size={15} className="mt-0.5 shrink-0 text-[#d04a43]" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </article>
-                );
-              })}
-
-              <div className="flex min-h-[220px] flex-col justify-between border border-[#d04a43] bg-[#a01c1c] p-6 shadow-xl">
-                <Zap size={28} className="text-[#fff7e8]" />
-                <div>
-                  <p className="text-3xl font-bold uppercase leading-[.9] text-[#fff7e8]">Need a tailored site solution?</p>
-                  <p className="mt-2 text-xs text-[#ffd4c5]">Request an on-site risk and technical evaluation.</p>
-                  <a href="#contact" className="mt-4 inline-flex items-center gap-2 text-xs uppercase tracking-[.12em] font-bold text-white underline underline-offset-4 hover:text-[#e7b85e]">
-                    Talk to our team <ArrowRight size={15} />
-                  </a>
+            <div className="grid gap-8 sm:grid-cols-2">
+              <div className="border-l-2 border-white/30 pl-4">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#ffd4c5]">
+                  <ShieldCheck size={16} /> 01. Integrity
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Geographic Reach & Sectors */}
-        <section id="reach" className="bg-[#f2eee6] px-5 py-24 text-[#0a1929] md:py-32">
-          <div className="mx-auto max-w-7xl">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Where we work</p>
-            <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-6xl">Close to the operation.</h2>
-
-            <div className="mt-14 grid gap-14 md:grid-cols-2">
-              <div>
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">
-                  Active Operating Footprint <span className="text-xs font-normal text-[#a01c1c]">(Click province for focus)</span>
+                <p className="mt-2 text-sm text-[#fff7e8]/90">
+                  Uncompromised compliance, full transparency, and rigorous operational control on every shift.
                 </p>
-                <div className="grid grid-cols-2 gap-4 border-l-2 border-[#a01c1c] pl-5 sm:grid-cols-3">
-                  {regions.map((r, i) => {
-                    const isSelected = selectedRegion === r;
-                    return (
-                      <button
-                        key={r}
-                        onClick={() => setSelectedRegion(r)}
-                        className={`text-left border-b py-4 transition-all ${isSelected ? 'border-[#a01c1c] bg-[#e8e2d7]/60 px-2' : 'border-[#c9c4b9] hover:border-[#a01c1c]'}`}
-                      >
-                        <span className="text-xs text-[#a01c1c] font-mono">0{i + 1}</span>
-                        <p className={`mt-1 font-semibold ${isSelected ? 'text-[#a01c1c]' : 'text-[#0a1929]'}`}>{r}</p>
-                      </button>
-                    );
-                  })}
+              </div>
+              <div className="border-l-2 border-white/30 pl-4">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#ffd4c5]">
+                  <Clock3 size={16} /> 02. Reliability
                 </div>
-
-                {selectedRegion && regionDetails[selectedRegion] && (
-                  <div className="mt-6 rounded-lg bg-[#e8e2d7] p-5 border border-[#c9c4b9]">
-                    <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#a01c1c]">
-                      <MapPin size={15} />
-                      <span>{selectedRegion} Strategic Operational Hub</span>
-                    </div>
-                    <p className="mt-2 text-sm font-semibold text-[#0a1929]">{regionDetails[selectedRegion].base}</p>
-                    <p className="mt-1 text-xs text-[#52616e]">{regionDetails[selectedRegion].focus}</p>
-                  </div>
-                )}
+                <p className="mt-2 text-sm text-[#fff7e8]/90">
+                  Dependable response times, continuous monitoring, and structured site handovers without disruption.
+                </p>
               </div>
-
-              <div>
-                <p className="mb-4 text-sm font-semibold uppercase tracking-[.08em] text-[#52616e]">Sectors we serve</p>
-                <div className="flex flex-wrap gap-2">
-                  {industries.map((ind) => (
-                    <span key={ind} className="border border-[#c9c4b9] bg-[#e8e2d7]/40 px-3.5 py-2.5 text-sm font-semibold text-[#0a1929] hover:border-[#a01c1c] transition-colors">
-                      {ind}
-                    </span>
-                  ))}
+              <div className="border-l-2 border-white/30 pl-4">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#ffd4c5]">
+                  <Zap size={16} /> 03. Innovation
                 </div>
-
-                <div className="mt-10 rounded-xl bg-[#0e2235] p-6 text-[#fff7e8]">
-                  <h4 className="text-lg font-bold uppercase tracking-wider text-[#e7b85e]">Rapid Deployment Guarantee</h4>
-                  <p className="mt-2 text-xs leading-relaxed text-[#becbd4]">
-                    Equipped with mobile control units, drone teams, and rapid-response tactical teams ready for fast mobilization across Southern African mining corridors.
-                  </p>
+                <p className="mt-2 text-sm text-[#fff7e8]/90">
+                  Integrating thermal drone technology, AI analytics, and biometrics with boots on the ground.
+                </p>
+              </div>
+              <div className="border-l-2 border-white/30 pl-4">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#ffd4c5]">
+                  <CircleCheck size={16} /> 04. Accountability
                 </div>
+                <p className="mt-2 text-sm text-[#fff7e8]/90">
+                  A single accountable partner for security, engineering support, and facility maintenance.
+                </p>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Values Banner */}
-        <section className="bg-[#a01c1c] px-5 py-24 text-[#fff7e8] md:py-32">
-          <div className="mx-auto max-w-7xl grid gap-12 md:grid-cols-2">
-            <h2 className="text-5xl font-bold uppercase leading-[.85] md:text-7xl">
-              Built on<br />trust.
-            </h2>
-            <div className="grid gap-8 border-l border-[#d85a53] pl-8 sm:grid-cols-2">
-              <div>
-                <p className="mb-2 text-xs uppercase tracking-[.2em] text-[#ffd4c5]">Mission</p>
-                <p className="text-lg font-semibold leading-snug">To deliver dependable, integrated services that protect people, enable production and strengthen the communities where we operate.</p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs uppercase tracking-[.2em] text-[#ffd4c5]">Vision</p>
-                <p className="text-lg font-semibold leading-snug">To be the trusted South African operations partner for safer, smarter and more productive sites.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Feature Highlights */}
-        <section className="bg-[#10283c] px-5 py-24 md:py-32 border-b border-white/10">
-          <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2">
-            <div className="flex min-h-[300px] flex-col justify-end bg-[#0e2235] p-8 border border-[#294256] group hover:border-[#d04a43] transition-all">
-              <ShieldCheck className="mb-5 text-[#d04a43] transition-transform group-hover:scale-110" size={38} />
-              <p className="max-w-sm text-4xl font-bold uppercase leading-[.9]">Discipline you can see.</p>
-              <p className="mt-4 text-xs text-[#becbd4] leading-relaxed">Vetted, highly-trained security officers and technical operators executing under strict compliance frameworks.</p>
-            </div>
-            <div className="flex min-h-[300px] flex-col justify-end bg-[#0e2235] p-8 border border-[#294256] group hover:border-[#d04a43] transition-all">
-              <CircleCheck className="mb-5 text-[#d04a43] transition-transform group-hover:scale-110" size={38} />
-              <p className="max-w-sm text-4xl font-bold uppercase leading-[.9]">Intelligence in the air.</p>
-              <p className="mt-4 text-xs text-[#becbd4] leading-relaxed">Thermal aerial mapping, perimeter drone patrols, and AI CCTV analytics integrated with central risk command.</p>
             </div>
           </div>
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="bg-[#f2eee6] px-5 py-24 text-[#0a1929] md:py-32">
-          <div className="mx-auto max-w-7xl grid gap-16 md:grid-cols-2">
-            <div>
-              <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Start a conversation</p>
-              <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-5xl">Let's make the site stronger.</h2>
-              <p className="mt-4 text-sm text-[#52616e] max-w-md">
-                Get in touch with our operating directors directly to request a site visit, risk audit, or customized tender proposal.
-              </p>
-              <div className="mt-10 space-y-5 border-t border-[#c9c4b9] pt-6">
-                <a href="tel:0145470989" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
-                  <Phone className="text-[#a01c1c]" size={19} />014 547 0989 <small className="text-[#52616e]">Tel</small>
-                </a>
-                <a href="tel:0646492868" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
-                  <Phone className="text-[#a01c1c]" size={19} />064 649 2868 <small className="text-[#52616e]">Cell</small>
-                </a>
-                <a href="https://wa.me/27615879808" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
-                  <WhatsAppIcon size={19} />061 587 9808 <small className="text-[#52616e]">WhatsApp</small>
-                </a>
-                <a href="mailto:tmaponyane@icloud.com" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
-                  <Mail className="text-[#a01c1c]" size={19} />tmaponyane@icloud.com
-                </a>
-                <div className="flex items-start gap-4 text-sm text-[#52616e]">
-                  <MapPin className="mt-0.5 shrink-0 text-[#a01c1c]" size={19} />No. 2234 Kgokong Street, EXT 6, Northam, 0360
+        <section id="contact" className="bg-[#07131e] px-5 py-24 md:py-32">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-12 lg:grid-cols-2">
+              <div>
+                <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Initiate contact</p>
+                <h2 className="text-4xl font-bold uppercase leading-[.95] text-[#fff7e8] md:text-6xl">
+                  Let's discuss<br /><span className="text-[#d04a43]">Your Site Scope</span>
+                </h2>
+                <p className="mt-6 text-base text-[#becbd4] max-w-md">
+                  Reach out to our operations desk for quotes, site assessments, or tenders across South Africa.
+                </p>
+
+                <div className="mt-10 space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-[#10283c] p-3 text-[#d04a43] border border-[#294256]">
+                      <Phone size={20} />
+                    </div>
+                    <div>
+                      <span className="block text-xs uppercase text-[#7890a1] font-mono">Telephone</span>
+                      <a href="tel:0145470989" className="text-lg font-bold text-[#fff7e8] hover:text-[#d04a43] transition-colors">
+                        014 547 0989
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-[#10283c] p-3 text-[#d04a43] border border-[#294256]">
+                      <Mail size={20} />
+                    </div>
+                    <div>
+                      <span className="block text-xs uppercase text-[#7890a1] font-mono">Email Enquiries</span>
+                      <a href="mailto:info@reconcilegroup.co.za" className="text-lg font-bold text-[#fff7e8] hover:text-[#d04a43] transition-colors">
+                        info@reconcilegroup.co.za
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="rounded-lg bg-[#10283c] p-3 text-[#d04a43] border border-[#294256]">
+                      <MapPin size={20} />
+                    </div>
+                    <div>
+                      <span className="block text-xs uppercase text-[#7890a1] font-mono">Primary Head Office</span>
+                      <p className="text-sm font-semibold text-[#fff7e8]">
+                        Northam HQ, Limpopo &amp; Operational Belt, South Africa
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              {submitted ? (
-                <div className="flex min-h-[420px] flex-col justify-center border border-[#b7b0a2] bg-[#e8e2d7] p-8 shadow-inner">
-                  <CircleCheck size={48} className="mb-6 text-[#a01c1c]" />
-                  <h3 className="text-4xl font-bold uppercase leading-[.9] md:text-5xl">Request received.</h3>
-                  <p className="mt-6 max-w-md text-[#52616e] text-sm leading-relaxed">
-                    Thank you for reaching out. T Maponyane and the Reconcile Group team will be in touch shortly to discuss your site requirements.
-                  </p>
-                  <button onClick={() => setSubmitted(false)} className="mt-8 w-fit border-b-2 border-[#a01c1c] pb-1 text-xs font-bold uppercase tracking-wider text-[#a01c1c] hover:opacity-80">
-                    Send another enquiry
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="border border-[#b7b0a2] bg-[#e8e2d7] p-8 shadow-lg">
-                  <div className="mb-6 flex items-center justify-between border-b border-[#c9c4b9] pb-4">
-                    <span className="text-[11px] uppercase tracking-[.16em] text-[#52616e] font-bold">Quote Request Form</span>
-                    <Clock3 size={18} className="text-[#a01c1c]" />
+              {/* Form Component */}
+              <div className="border border-[#294256] bg-[#10283c] p-8 shadow-2xl">
+                {submitted ? (
+                  <div className="flex h-full min-h-[350px] flex-col items-center justify-center text-center">
+                    <CircleCheck size={56} className="text-[#25D366] mb-4" />
+                    <h3 className="text-2xl font-bold uppercase text-[#fff7e8]">Request Received</h3>
+                    <p className="mt-2 text-sm text-[#becbd4] max-w-sm">
+                      Thank you. Our operations team will review your scope and get in touch shortly.
+                    </p>
+                    <button 
+                      onClick={() => setSubmitted(false)}
+                      className="mt-6 bg-[#a01c1c] px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#c23b35]"
+                    >
+                      Send another message
+                    </button>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="text-sm font-semibold">Your name
-                      <input name="name" required className="mt-2 w-full border border-[#c9c4b9] bg-white p-3 text-sm focus:border-[#a01c1c] focus:outline-none" placeholder="John Doe" />
-                    </label>
-                    <label className="text-sm font-semibold">Work email
-                      <input type="email" name="email" required className="mt-2 w-full border border-[#c9c4b9] bg-white p-3 text-sm focus:border-[#a01c1c] focus:outline-none" placeholder="john@miningco.co.za" />
-                    </label>
-                  </div>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <label className="text-sm font-semibold">Phone number
-                      <input type="tel" name="phone" className="mt-2 w-full border border-[#c9c4b9] bg-white p-3 text-sm focus:border-[#a01c1c] focus:outline-none" placeholder="082 000 0000" />
-                    </label>
-                    <label className="text-sm font-semibold">Primary capability needed
-                      <select name="capability" className="mt-2 w-full border border-[#c9c4b9] bg-white p-3 text-sm focus:border-[#a01c1c] focus:outline-none">
-                        {services.map(s => <option key={s.number} value={s.title}>{s.title}</option>)}
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <h3 className="text-xl font-bold uppercase text-[#fff7e8] mb-2">Request a Quote</h3>
+                    
+                    {formError && (
+                      <div className="rounded bg-[#a01c1c]/20 border border-[#a01c1c] p-3 text-xs text-[#ffd4c5]">
+                        {formError}
+                      </div>
+                    )}
+
+                    <div>
+                      <label htmlFor="name" className="block text-xs uppercase tracking-wider text-[#7890a1] mb-1 font-mono">Your Name / Title *</label>
+                      <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        className="w-full bg-[#07131e] border border-[#294256] px-4 py-3 text-sm text-[#fff7e8] focus:border-[#d04a43] focus:outline-none" 
+                        placeholder="e.g. Sipho Ndlovu (Site Manager)"
+                      />
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label htmlFor="email" className="block text-xs uppercase tracking-wider text-[#7890a1] mb-1 font-mono">Email Address *</label>
+                        <input 
+                          type="email" 
+                          id="email" 
+                          name="email" 
+                          className="w-full bg-[#07131e] border border-[#294256] px-4 py-3 text-sm text-[#fff7e8] focus:border-[#d04a43] focus:outline-none" 
+                          placeholder="name@company.co.za"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="phone" className="block text-xs uppercase tracking-wider text-[#7890a1] mb-1 font-mono">Phone Number</label>
+                        <input 
+                          type="tel" 
+                          id="phone" 
+                          name="phone" 
+                          className="w-full bg-[#07131e] border border-[#294256] px-4 py-3 text-sm text-[#fff7e8] focus:border-[#d04a43] focus:outline-none" 
+                          placeholder="082 123 4567"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="capability" className="block text-xs uppercase tracking-wider text-[#7890a1] mb-1 font-mono">Required Capability</label>
+                      <select 
+                        id="capability" 
+                        name="capability" 
+                        className="w-full bg-[#07131e] border border-[#294256] px-4 py-3 text-sm text-[#fff7e8] focus:border-[#d04a43] focus:outline-none"
+                      >
+                        {services.map((s) => (
+                          <option key={s.number} value={s.title}>{s.title}</option>
+                        ))}
+                        <option value="Turnkey Integrated Scope">Turnkey Integrated Scope</option>
                       </select>
-                    </label>
-                  </div>
-                  <label className="mt-4 block text-sm font-semibold">How can we help?
-                    <textarea name="message" rows={4} className="mt-2 w-full resize-none border border-[#c9c4b9] bg-white p-3 text-sm focus:border-[#a01c1c] focus:outline-none" placeholder="Detail your project timeline, location, and site requirements..." />
-                  </label>
-                  {formError && <p className="mt-3 text-sm font-semibold text-[#a01c1c]">{formError}</p>}
-                  <button type="submit" className="mt-6 w-full bg-[#a01c1c] px-6 py-4 font-semibold uppercase tracking-[.08em] text-[#fff7e8] transition-all hover:bg-[#c23b35] shadow-md">
-                    Send request
-                  </button>
-                </form>
-              )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="message" className="block text-xs uppercase tracking-wider text-[#7890a1] mb-1 font-mono">Site Scope / Requirements</label>
+                      <textarea 
+                        id="message" 
+                        name="message" 
+                        rows={4} 
+                        className="w-full bg-[#07131e] border border-[#294256] px-4 py-3 text-sm text-[#fff7e8] focus:border-[#d04a43] focus:outline-none resize-none" 
+                        placeholder="Specify location, timeframe, personnel or hardware required..."
+                      />
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="w-full bg-[#a01c1c] py-4 text-xs font-bold uppercase tracking-[.15em] text-white transition-all hover:bg-[#c23b35] hover:shadow-lg shadow-[#a01c1c]/30 flex items-center justify-center gap-2"
+                    >
+                      Submit Request <ChevronRight size={16} />
+                    </button>
+                  </form>
+                )}
+              </div>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Estimator Modal Drawer */}
+      {/* Scope Estimator Modal */}
       {showEstimator && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm">
-          <div className="relative w-full max-w-lg border border-white/20 bg-[#0e2235] p-8 text-[#fff7e8] shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg border border-[#294256] bg-[#10283c] p-6 text-[#fff7e8] shadow-2xl relative">
             <button 
               onClick={() => setShowEstimator(false)}
-              className="absolute right-4 top-4 p-2 text-white/60 hover:text-white"
+              className="absolute top-4 right-4 text-[#7890a1] hover:text-white"
             >
               <X size={20} />
             </button>
-            <div className="flex items-center gap-2 text-[#d04a43]">
-              <Calculator size={20} />
-              <span className="text-xs font-bold uppercase tracking-wider">Quick Scope Estimator</span>
+
+            <div className="flex items-center gap-2 text-[#e7b85e] text-xs font-mono uppercase mb-1">
+              <Calculator size={16} /> Quick Scope Estimator
             </div>
-            <h3 className="mt-2 text-2xl font-bold uppercase">Configure Site Needs</h3>
+            <h3 className="text-xl font-bold uppercase">Configure Initial Assessment</h3>
 
             <div className="mt-6 space-y-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-[#7890a1]">Select Service Type</label>
+                <label className="block text-xs font-mono uppercase text-[#7890a1] mb-1">Select Core Service</label>
                 <select 
                   value={estService} 
                   onChange={(e) => setEstService(e.target.value)}
-                  className="mt-1 w-full border border-[#294256] bg-[#10283c] p-3 text-sm text-white focus:outline-none"
+                  className="w-full bg-[#07131e] border border-[#294256] p-3 text-sm text-[#fff7e8] focus:outline-none"
                 >
                   {services.map(s => <option key={s.number} value={s.title}>{s.title}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase text-[#7890a1]">Estimated Duration</label>
-                <select 
-                  value={estDuration} 
-                  onChange={(e) => setEstDuration(e.target.value)}
-                  className="mt-1 w-full border border-[#294256] bg-[#10283c] p-3 text-sm text-white focus:outline-none"
-                >
-                  <option value="Ad-hoc / Emergency">Ad-hoc / Emergency Support</option>
-                  <option value="1-3 Months">1 - 3 Months Project</option>
-                  <option value="6-12 Months">6 - 12 Months Contract</option>
-                  <option value="Long Term">Multi-Year Maintenance</option>
-                </select>
+                <label className="block text-xs font-mono uppercase text-[#7890a1] mb-1">Estimated Contract Duration</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {['Ad-hoc / Shutdown', '1-3 Months', '12+ Months'].map(dur => (
+                    <button 
+                      key={dur} 
+                      onClick={() => setEstDuration(dur)}
+                      className={`py-2 px-3 text-xs border text-center transition-colors ${estDuration === dur ? 'border-[#d04a43] bg-[#d04a43]/20 text-[#fff7e8]' : 'border-[#294256] bg-[#07131e] text-[#7890a1]'}`}
+                    >
+                      {dur}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-6 rounded-lg bg-[#10283c] p-4 border border-[#294256]">
-                <span className="block text-[10px] uppercase text-[#7890a1]">Estimated Deployment Readiness</span>
-                <span className="block text-lg font-bold text-[#e7b85e]">24 to 72 Hours Post-Audit</span>
-                <p className="mt-1 text-xs text-[#becbd4]">Includes team mobilisation, HSE site onboarding, and equipment transport.</p>
+              <div className="rounded border border-[#294256] bg-[#07131e] p-4 mt-4">
+                <span className="text-[10px] font-mono text-[#7890a1] uppercase block">Estimated Mobilisation Plan</span>
+                <p className="text-sm font-bold text-[#e7b85e] mt-1">Rapid 24-48 Hour On-Site Deployment</p>
+                <p className="text-xs text-[#becbd4] mt-1">
+                  Includes risk profile mapping, team deployment, and integration of drone/CCTV monitoring setup for {estService.toLowerCase()}.
+                </p>
               </div>
             </div>
 
-            <div className="mt-8 flex gap-3">
+            <div className="mt-6 flex justify-between items-center pt-4 border-t border-[#294256]">
+              <span className="text-xs text-[#7890a1]">Ready for a detailed proposal?</span>
               <a 
                 href="#contact" 
                 onClick={() => setShowEstimator(false)}
-                className="flex-1 bg-[#a01c1c] py-3 text-center text-xs font-bold uppercase tracking-wider text-white hover:bg-[#c23b35]"
+                className="bg-[#a01c1c] px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#c23b35]"
               >
-                Proceed to Request
+                Proceed to Quote
               </a>
-              <button 
-                onClick={() => setShowEstimator(false)}
-                className="border border-white/20 px-4 py-3 text-xs font-bold uppercase hover:bg-white/5"
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* WhatsApp Floating Button */}
+      {/* Floating WhatsApp Button */}
       <WhatsAppFloat />
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#081521] px-5 py-10">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <footer className="border-t border-white/10 bg-[#040b12] px-5 py-12 text-[#7890a1]">
+        <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Reconcile Group logo" className="h-10 w-10 rounded-xl object-cover" />
+            <img src="/logo.png" alt="Reconcile Group logo" className="h-8 w-8 rounded-lg object-cover ring-1 ring-white/10" />
             <div>
-              <p className="text-xs font-bold uppercase tracking-[.15em] text-[#fff7e8]">Reconcile Group</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[.12em] text-[#d04a43]">Mining Support, Security &amp; Technical Services</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#fff7e8]">Reconcile Group</p>
+              <p className="text-[10px] uppercase text-[#d04a43]">Integrated Mining Services</p>
             </div>
           </div>
-          <div className="flex flex-col gap-1 text-xs uppercase tracking-[.12em] text-[#728493] md:items-end">
-            <span>© {year} Reconcile Security Services (Pty) Ltd</span>
-            <span>Reg: 2020/724821/07 · Tax: 9620013194</span>
-            <span>Northam, Limpopo · South Africa</span>
+
+          <div className="flex flex-wrap items-center gap-6 text-xs font-semibold uppercase tracking-wider">
+            <a href="#about" className="hover:text-[#fff7e8] transition-colors">Company</a>
+            <a href="#services" className="hover:text-[#fff7e8] transition-colors">Capabilities</a>
+            <a href="#reach" className="hover:text-[#fff7e8] transition-colors">Footprint</a>
+            <a href="#contact" className="hover:text-[#fff7e8] transition-colors">Contact</a>
           </div>
+
+          <p className="text-xs font-mono">
+            &copy; {year} Reconcile Group. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
