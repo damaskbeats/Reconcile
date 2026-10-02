@@ -28,7 +28,6 @@ const regionDetails: Record<string, { base: string; focus: string; lat: number; 
   'North West': { base: 'Rustenburg Operational Office', focus: 'PGM Mining Belt & Infrastructure Support', lat: -25.6672, lng: 27.2424 },
   'Gauteng': { base: 'Centurion Logistics Hub', focus: 'Corporate Security & Technology Monitoring', lat: -25.8601, lng: 28.1878 },
   'Mpumalanga': { base: 'eMalahleni / Witbank Field Support', focus: 'Energy, Coal Operations & Heavy Fleet Logistics', lat: -25.8752, lng: 29.2318 },
-  'KwaZulu-Natal': { base: 'Richards Bay & Durban Supply Route', focus: 'Port Security, Logistics & Infrastructure', lat: -28.7830, lng: 32.0377 },
 };
 
 const regions = Object.keys(regionDetails);
@@ -433,7 +432,7 @@ export default function App() {
                 <span className="mt-1 block text-xs font-bold uppercase tracking-wider text-[#52616e]">Site Monitoring</span>
               </div>
               <div>
-                <span className="block text-3xl font-extrabold text-[#a01c1c] md:text-4xl">5+</span>
+                <span className="block text-3xl font-extrabold text-[#a01c1c] md:text-4xl">4</span>
                 <span className="mt-1 block text-xs font-bold uppercase tracking-wider text-[#52616e]">Provinces Active</span>
               </div>
               <div>
@@ -647,7 +646,7 @@ export default function App() {
           <div className="mx-auto max-w-7xl grid gap-16 md:grid-cols-2">
             <div>
               <p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-[#d04a43]">Start a conversation</p>
-              <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-5xl">Let's make the site stronger.</h2>
+              <h2 className="text-4xl font-bold uppercase leading-[.95] md:text-5xl">Let's strengthen your operations.</h2>
               <p className="mt-4 text-sm text-[#52616e] max-w-md">
                 Get in touch with our operating directors directly to request a site visit, risk audit, or customized tender proposal.
               </p>
@@ -655,14 +654,11 @@ export default function App() {
                 <a href="tel:0145470989" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
                   <Phone className="text-[#a01c1c]" size={19} />014 547 0989 <small className="text-[#52616e]">Tel</small>
                 </a>
-                <a href="tel:0646492868" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
-                  <Phone className="text-[#a01c1c]" size={19} />064 649 2868 <small className="text-[#52616e]">Cell</small>
-                </a>
                 <a href="https://wa.me/27615879808" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
                   <WhatsAppIcon size={19} />061 587 9808 <small className="text-[#52616e]">WhatsApp</small>
                 </a>
-                <a href="mailto:tmaponyane@icloud.com" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
-                  <Mail className="text-[#a01c1c]" size={19} />tmaponyane@icloud.com
+                <a href="mailto:sales@reconciles.co.za" className="flex items-center gap-4 font-semibold transition-colors hover:text-[#a01c1c]">
+                  <Mail className="text-[#a01c1c]" size={19} />sales@reconciles.co.za
                 </a>
                 <div className="flex items-start gap-4 text-sm text-[#52616e]">
                   <MapPin className="mt-0.5 shrink-0 text-[#a01c1c]" size={19} />No. 2234 Kgokong Street, EXT 6, Northam, 0360
